@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import type { Doc, Id } from "../../../../convex/_generated/dataModel";
@@ -40,7 +40,15 @@ const PURPOSES = [
   { value: "educational", label: "Educational" },
 ] as const;
 
-export default function AdminProfilesPage() {
+export default function AdminProfilesPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="text-blue-400">Loading...</div></div>}>
+      <AdminProfilesPage />
+    </Suspense>
+  );
+}
+
+function AdminProfilesPage() {
   const searchParams = useSearchParams();
   const showNew = searchParams.get("new") === "true";
   const profiles = useQuery(api.inmates.adminList);
