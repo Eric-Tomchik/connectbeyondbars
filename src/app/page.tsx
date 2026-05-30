@@ -87,6 +87,12 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Featured Profiles */}
+      <FeaturedProfiles />
+
+      {/* Recently Added */}
+      <RecentlyAdded />
+
       {/* How It Works */}
       <section className="py-20 border-t border-surface-800/50">
         <div className="section-container">
@@ -367,6 +373,158 @@ export default function HomePage() {
       {/* Waitlist */}
       <WaitlistSection />
     </div>
+  );
+}
+
+function ProfileCard({
+  profile,
+}: {
+  profile: {
+    slug: string;
+    firstName: string;
+    lastName: string;
+    age: number;
+    state: string;
+    facility: string;
+    bio: string;
+    interests: string[];
+    photoUrl?: string;
+    isFeatured: boolean;
+  };
+}) {
+  return (
+    <Link href={`/profiles/${profile.slug}`} className="card p-5 group block">
+      <div className="flex items-start gap-4">
+        <div className="w-14 h-14 rounded-xl bg-brand-600/10 border border-brand-600/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {profile.photoUrl ? (
+            <img
+              src={profile.photoUrl}
+              alt={profile.firstName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-brand-400 font-bold text-lg">
+              {profile.firstName[0]}
+              {profile.lastName[0]}
+            </span>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-white font-semibold text-sm group-hover:text-brand-400 transition-colors">
+              {profile.firstName} {profile.lastName[0]}.
+            </h3>
+            <span className="text-surface-500 text-xs">
+              {profile.age} · {profile.state}
+            </span>
+            {profile.isFeatured && (
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            )}
+          </div>
+          <p className="text-surface-400 text-xs leading-relaxed line-clamp-2 mb-2">
+            {profile.bio}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {profile.interests.slice(0, 3).map((i) => (
+              <span
+                key={i}
+                className="badge-interest text-[10px] py-0.5 px-1.5"
+              >
+                {i}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function FeaturedProfiles() {
+  const featured = useQuery(api.inmates.list, {
+    featured: true,
+    limit: 4,
+  });
+
+  if (!featured || featured.profiles.length === 0) return null;
+
+  return (
+    <section className="py-16 border-t border-surface-800/50">
+      <div className="section-container">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+              <h2 className="text-2xl font-bold text-white">
+                Featured Profiles
+              </h2>
+            </div>
+            <p className="text-surface-400 text-sm">
+              Highlighted pen pals looking for meaningful connections
+            </p>
+          </div>
+          <Link
+            href="/profiles"
+            className="btn-secondary text-sm hidden sm:flex"
+          >
+            View All
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {featured.profiles.map((profile) => (
+            <ProfileCard key={profile._id} profile={profile as any} />
+          ))}
+        </div>
+        <div className="text-center mt-6 sm:hidden">
+          <Link href="/profiles" className="btn-secondary text-sm">
+            View All Profiles
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RecentlyAdded() {
+  const recent = useQuery(api.inmates.list, {
+    limit: 6,
+  });
+
+  if (!recent || recent.profiles.length === 0) return null;
+
+  return (
+    <section className="py-16 border-t border-surface-800/50 bg-surface-900/30">
+      <div className="section-container">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Recently Added</h2>
+            <p className="text-surface-400 text-sm">
+              New pen pals waiting to hear from you
+            </p>
+          </div>
+          <Link
+            href="/profiles"
+            className="btn-secondary text-sm hidden sm:flex"
+          >
+            Browse All
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {recent.profiles.map((profile) => (
+            <ProfileCard key={profile._id} profile={profile as any} />
+          ))}
+        </div>
+        <div className="text-center mt-6 sm:hidden">
+          <Link href="/profiles" className="btn-secondary text-sm">
+            Browse All Profiles
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
 
